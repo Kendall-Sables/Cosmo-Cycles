@@ -28,109 +28,72 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header/Navigation */}
-
-      {/* Hero Section */}
-      <section className="pt-16 pb-8 md:pt-24 md:pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              <span className="block">Your Amazing</span>
-              <span className="block text-indigo-600">SaaS Product</span>
-            </h1>
-            <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-              Replace this with your compelling value proposition. Explain how your product solves customer problems.
-            </p>
-            <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-              <div className="rounded-md shadow">
-                <Link
-                  href="/signin"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
-                >
-                  Get started
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-base text-indigo-600 font-semibold tracking-wide uppercase">Features</h2>
-            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Everything you need
-            </p>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
-              Replace with your product's key features and benefits.
-            </p>
-          </div>
-
-          <div className="mt-10">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Feature 1 */}
-              <div className="pt-6">
-                <div className="flow-root bg-white rounded-lg px-6 pb-8">
-                  <div className="-mt-6">
-                    <div>
-                      <span className="inline-flex items-center justify-center p-3 bg-indigo-500 rounded-md shadow-lg">
-                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                      </span>
-                    </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Feature One</h3>
-                    <p className="mt-5 text-base text-gray-500">
-                      Describe how this feature benefits your users. Focus on the value it provides.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="pt-6">
-                <div className="flow-root bg-white rounded-lg px-6 pb-8">
-                  <div className="-mt-6">
-                    <div>
-                      <span className="inline-flex items-center justify-center p-3 bg-indigo-500 rounded-md shadow-lg">
-                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                      </span>
-                    </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Feature Two</h3>
-                    <p className="mt-5 text-base text-gray-500">
-                      Explain another key feature of your product and why it matters to your customers.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="pt-6">
-                <div className="flow-root bg-white rounded-lg px-6 pb-8">
-                  <div className="-mt-6">
-                    <div>
-                      <span className="inline-flex items-center justify-center p-3 bg-indigo-500 rounded-md shadow-lg">
-                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                      </span>
-                    </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Feature Three</h3>
-                    <p className="mt-5 text-base text-gray-500">
-                      Highlight a third important feature that sets your product apart from competitors.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="bg-white">
+  {/* Luxury Hero Section */}
+  <section className="relative h-[90vh] flex items-center justify-center bg-emerald-950 overflow-hidden">
+    {/* Background Image - High-res cycling shot */}
+    <div className="absolute inset-0 opacity-40">
+      <img 
+        src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=2000" 
+        className="w-full h-full object-cover"
+        alt="Performance Cycling"
+      />
     </div>
+
+    <div className="relative z-10 text-center px-4">
+      <span className="text-emerald-400 font-bold tracking-[0.4em] uppercase text-xs mb-6 block">
+        Engineered in the Void
+      </span>
+      <h1 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter leading-none mb-8">
+        LEAD THE <br /> <span className="text-transparent" style={{ WebkitTextStroke: '2px white' }}>PELOTÓN</span>
+      </h1>
+      <div className="flex flex-col md:flex-row gap-4 justify-center">
+        <Link 
+          href="/shop" 
+          className="bg-white text-emerald-950 px-12 py-5 font-bold uppercase text-xs tracking-widest hover:bg-emerald-400 transition-all"
+        >
+          Explore The Fleet
+        </Link>
+        <Link 
+          href="/signin" 
+          className="border border-white text-white px-12 py-5 font-bold uppercase text-xs tracking-widest hover:bg-white/10 transition-all"
+        >
+          Join The Mission
+        </Link>
+      </div>
+    </div>
+  </section>
+
+  {/* Technical Differentiation Section (The 'Project' Meat) */}
+  <section className="py-24 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+    <div>
+      <h2 className="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-4">Unrivaled Tech</h2>
+      <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-6">
+        NoSQL Real-time <br /> Inventory Tracking
+      </h3>
+      <p className="text-slate-500 leading-relaxed mb-8">
+        Cosmo Cycles utilizes a high-performance Firebase backend to ensure your gear is 
+        always in sync. From carbon frames to electronic shifting, every component is tracked.
+      </p>
+      <div className="grid grid-cols-2 gap-8 border-t border-slate-100 pt-8">
+        <div>
+          <p className="text-2xl font-black text-emerald-950">2026</p>
+          <p className="text-xs text-slate-400 uppercase tracking-widest">Model Year</p>
+        </div>
+        <div>
+          <p className="text-2xl font-black text-emerald-950">0.4ms</p>
+          <p className="text-xs text-slate-400 uppercase tracking-widest">Latency</p>
+        </div>
+      </div>
+    </div>
+    <div className="bg-slate-100 aspect-square overflow-hidden">
+      <img 
+        src="https://images.unsplash.com/photo-1618762044398-ec1e7e048bbd?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+        className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+        alt="Bicycle Detail"
+      />
+    </div>
+  </section>
+</div>
   );
 }
