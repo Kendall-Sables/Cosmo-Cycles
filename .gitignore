@@ -21,6 +21,7 @@
 /hosting/.next/
 /out/
 /hosting/out/
+/hosting/serviceAccountKey.json
 
 # production
 /build
@@ -56,3 +57,8 @@ next-env.d.ts
 firebase-debug.log
 data/*
 !data/.gitkeep
+
+# Firebase Security
+serviceAccountKey.json
+node_modules
+.env.local
