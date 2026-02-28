@@ -30,34 +30,6 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header/Navigation */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex-shrink-0">
-              <span className="text-xl font-bold text-indigo-600">SaaS Template</span>
-            </div>
-            <div className="flex space-x-4">
-              <a href="#features" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Features</a>
-              <a href="#pricing" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Pricing</a>
-              {user ? (
-                <button
-                  onClick={handleSignOut}
-                  className="ml-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Sign Out
-                </button>
-              ) : (
-                <Link
-                  href="/signin"
-                  className="ml-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Sign In
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Hero Section */}
       <section className="pt-16 pb-8 md:pt-24 md:pb-12">
@@ -159,14 +131,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      {/* Footer */}
-      <footer className="bg-gray-800 mt-12">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-400">
-            &copy; 2025 SaaS Template. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
