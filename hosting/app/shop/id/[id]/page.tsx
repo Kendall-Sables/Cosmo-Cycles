@@ -16,9 +16,17 @@ export default function BikeDetailPage() {
   const [showGuide, setShowGuide] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   
+  // NEW: Notification state
+  const [notification, setNotification] = useState<{show: boolean, message: string}>({ show: false, message: '' });
+
   const db = getFirestore(app);
 
-  // 1. Fetch the Main Bike
+  // Helper for Custom Toast
+  const triggerToast = (msg: string) => {
+    setNotification({ show: true, message: msg });
+    setTimeout(() => setNotification({ show: false, message: '' }), 4000);
+  };
+
   useEffect(() => {
     if (id) {
       const fetchBike = async () => {
@@ -30,7 +38,6 @@ export default function BikeDetailPage() {
     }
   }, [id, db]);
 
-  // 2. Fetch Recommended Machines (Same Level + Same Category)
   useEffect(() => {
     if (bike) {
       const fetchRecs = async () => {
@@ -42,52 +49,66 @@ export default function BikeDetailPage() {
         const snap = await getDocs(q);
         const others = snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter(b => b.id !== bike.id); // Exclude current bike
-        setRecommendations(others.slice(0, 2)); // Limit to 2
+          .filter(b => b.id !== bike.id);
+        setRecommendations(others.slice(0, 2));
       };
       fetchRecs();
     }
   }, [bike, db]);
 
-  // 3. Garage (Favorite) Logic
+  // Updated Garage Logic (No size required)
   const handleAddToGarage = async () => {
     if (!user) {
-      alert("Please login to access your Garage.");
-      return;
-    }
-    if (!selectedSize) {
-      alert("Please select a frame size.");
+      triggerToast("Please login to access your Garage.");
       return;
     }
 
     setIsAdding(true);
     try {
+      // 1. Check if this bike is ALREADY in this user's garage
+      const garageRef = collection(db, 'garages');
+      const q = query(
+        garageRef, 
+        where('userEmail', '==', user.email), 
+        where('bikeId', '==', bike.id)
+      );
+      
+      const querySnapshot = await getDocs(q);
+
+      // 2. If it exists, don't add it again
+      if (!querySnapshot.empty) {
+        triggerToast(`${bike.name} is already in your garage.`);
+        setIsAdding(false);
+        return;
+      }
+
+      // 3. If it doesn't exist, proceed with adding
       await addDoc(collection(db, 'garages'), {
         userEmail: user.email,
         bikeId: bike.id,
         bikeName: bike.name,
         bikeImage: bike.image,
         bikePrice: bike.price,
-        size: selectedSize,
+        size: selectedSize || 'Not Specified',
         addedAt: new Date()
       });
-      alert(`${bike.name} has been secured in your Garage.`);
+      triggerToast(`${bike.name} secured in Garage.`);
     } catch (error) {
-      console.error("Error adding to garage:", error);
-      alert("Failed to secure machine. Check console.");
+      console.error(error);
+      triggerToast("Failed to save machine.");
     } finally {
       setIsAdding(false);
     }
   };
 
-  // --- NEW: Add to Cart Logic ---
+  // Updated Cart Logic (Size mandatory)
   const handleAddToCart = async () => {
     if (!user) {
-      alert("Please login to add machines to your cart.");
+      triggerToast("Please login to add to cart.");
       return;
     }
     if (!selectedSize) {
-      alert("Please select a frame size first.");
+      triggerToast("Please select a frame size first.");
       return;
     }
 
@@ -102,9 +123,9 @@ export default function BikeDetailPage() {
         size: selectedSize,
         addedAt: new Date()
       });
-      alert("Machine added to cart successfully.");
+      triggerToast(`${bike.name} added to cart.`);
     } catch (error) {
-      console.error("Cart Error:", error);
+      triggerToast("Could not add to cart.");
     } finally {
       setIsAdding(false);
     }
@@ -113,7 +134,7 @@ export default function BikeDetailPage() {
   if (!bike) return <div className="p-20 text-center uppercase tracking-widest text-xs">Calibrating...</div>;
 
   return (
-    <div className="bg-white min-h-screen pt-24 relative">
+    <div className="bg-white min-h-screen pt-24 relative overflow-x-hidden">
       
       {/* SIZE GUIDE MODAL */}
       {showGuide && (
@@ -137,18 +158,15 @@ export default function BikeDetailPage() {
         </div>
       )}
 
-      {/* BREADCRUMBS */}
       <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center space-x-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
         <Link href="/shop" className="hover:text-slate-900 transition">Fleet</Link>
         <span>/</span>
         <span className="text-slate-900">{bike.name}</span>
       </nav>
 
-      {/* MAIN CONTENT */}
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 pb-20">
-        {/* IMAGE & SPECS */}
         <div className="lg:col-span-8">
-          <div className="aspect-video bg-slate-50 flex items-center justify-center p-12 overflow-hidden border border-slate-100">
+          <div className="aspect-video bg-slate-50 flex items-center justify-center p-12 border border-slate-100">
             <img src={bike.image} className="w-full h-full object-contain" alt={bike.name} />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
@@ -161,16 +179,14 @@ export default function BikeDetailPage() {
           </div>
         </div>
 
-        {/* INFO PANEL */}
         <div className="lg:col-span-4 lg:sticky lg:top-32 h-fit">
           <p className="text-emerald-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4">{bike.brand} // {bike.category}</p>
           <h1 className="text-6xl font-black uppercase tracking-tighter mb-4 text-slate-900 leading-[0.9]">{bike.name}</h1>
-          <p className="text-3xl font-light text-slate-900 mb-8 italic text-slate-400">R {bike.price?.toLocaleString()}</p>
+          <p className="text-3xl font-light text-slate-900 mb-8 italic">R {bike.price?.toLocaleString()}</p>
           
           <div className="border-t border-slate-200 pt-8">
             <p className="text-sm text-slate-500 leading-relaxed mb-8">{bike.longDescription || "Precision engineered for ultimate performance."}</p>
 
-            {/* SIZES */}
             <div className="mb-10">
               <div className="flex justify-between items-end mb-4">
                 <p className="text-[10px] uppercase font-black tracking-widest">Frame Size</p>
@@ -181,7 +197,7 @@ export default function BikeDetailPage() {
                   <button 
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`min-w-[50px] px-4 py-4 border text-[10px] font-black transition-all ${selectedSize === size ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-900 border-slate-200 hover:border-slate-400'}`}
+                    className={`min-w-[50px] px-4 py-4 border text-[10px] font-black transition-all ${selectedSize === size ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-900 border-slate-200 hover:border-slate-400'}`}
                   >
                     {size}
                   </button>
@@ -206,9 +222,9 @@ export default function BikeDetailPage() {
               <button 
                 onClick={handleAddToGarage}
                 disabled={isAdding}
-                className="w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] border border-slate-200 text-slate-900 hover:bg-slate-50 hover:border-slate-400 transition-all"
+                className="w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] border border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white transition-all"
               >
-                Save to Garage
+                {isAdding ? 'Saving...' : 'Save to Garage'}
               </button>
             </div>
           </div>
@@ -219,7 +235,7 @@ export default function BikeDetailPage() {
       {recommendations.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 mt-16 border-t border-slate-100 pt-20 pb-32">
           <h3 className="text-4xl font-black uppercase tracking-tighter mb-12 text-slate-900">
-            Other <span className="text-emerald-500">{bike.level}</span> <span className="text-emerald-500">{bike.category}</span> Bikes
+            Similar <span className="text-emerald-500">{bike.level}</span> Machines
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {recommendations.map((rec) => (
@@ -230,10 +246,20 @@ export default function BikeDetailPage() {
                 <div>
                   <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1">{rec.brand}</p>
                   <h4 className="text-xl font-black uppercase text-slate-900 leading-tight">{rec.name}</h4>
-                  <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-tighter italic">R {rec.price?.toLocaleString()}</p>
+                  <p className="text-xs font-bold text-slate-400 mt-2 italic">R {rec.price?.toLocaleString()}</p>
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM TOAST NOTIFICATION */}
+      {notification.show && (
+        <div className="fixed bottom-10 right-10 z-[200] animate-bounce-in">
+          <div className="bg-slate-900 text-white px-8 py-5 shadow-2xl border-l-4 border-emerald-500 flex items-center gap-4">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em]">{notification.message}</p>
           </div>
         </div>
       )}
