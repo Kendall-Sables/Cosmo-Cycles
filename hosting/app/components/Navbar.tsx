@@ -41,22 +41,24 @@ export default function Navbar() {
           <div className="flex items-center gap-8">
             {user ? (
               <>
+                {/* My Garage Link */}
+                <div className = "border-r-2 border-slate-250 pr-6 mr-2 py-1.5">
+                  <Link 
+                    href="/garage" 
+                    className="text-[10px] font-bold tracking-widest text-emerald-800 hover:text-emerald-600 transition flex items-center gap-2 group"
+                  >
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full group-hover:scale-150 transition-transform"></span>
+                    GARAGE
+                  </Link>
+                </div>
+
                 {/* Pilot Identity Badge */}
-                <div className="hidden lg:flex flex-col items-end border-r border-slate-100 pr-6 mr-2">
+                <div className="hidden lg:flex flex-col items-end">
                   <span className="text-[7px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-0.5">Verified Pilot</span>
                   <span className="text-[10px] font-bold uppercase tracking-tight text-slate-900">
                     {user.displayName || user.email?.split('@')[0]}
                   </span>
                 </div>
-
-                {/* My Garage Link */}
-                <Link 
-                  href="/garage" 
-                  className="text-[10px] font-bold tracking-widest text-emerald-800 hover:text-emerald-600 transition flex items-center gap-2 group"
-                >
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full group-hover:scale-150 transition-transform"></span>
-                  GARAGE
-                </Link>
 
                 <button
                   onClick={handleLogout}
