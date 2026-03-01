@@ -228,7 +228,7 @@ export default function BikeDetailPage() {
       {recommendations.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 mt-16 border-t border-slate-100 pt-20 pb-32">
           <h3 className="text-4xl font-black uppercase tracking-tighter mb-12 text-slate-900">
-            Similar <span className="text-emerald-500">{bike.level}</span> Machines
+            Similar <span className="text-emerald-500">{bike.level}</span> <span className="text-emerald-500">{bike.category}</span> Bikes
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {recommendations.map((rec) => (
