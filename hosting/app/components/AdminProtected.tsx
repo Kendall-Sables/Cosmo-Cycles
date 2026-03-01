@@ -1,88 +1,42 @@
-
-import { getAuth } from 'firebase/auth';
-
+'use client';
+import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-
+// 🚨 ADMIN IDENTIFIER
+const ADMIN_EMAIL = "admin@cosmo.co.za"; 
 
 export function AdminProtected({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
 
-const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!loading) {
+      if (user && user.email === ADMIN_EMAIL) {
+        setAuthorized(true);
+      } else if (user) {
+        // Logged in but NOT the admin? Send to Shop.
+        router.push('/shop');
+      } else {
+        // Not logged in at all? Send to Sign In.
+        router.push('/signin');
+      }
+    }
+  }, [user, loading, router]);
 
-const auth = getAuth();
+  if (loading || !authorized) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">
+            Verifying Admin Clearance...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-
-
-useEffect(() => {
-
-return auth.onIdTokenChanged(async (user) => {
-
-if (user) {
-
-    // For development purposes, allow all authenticated users
-
-    setIsAdmin(true);
-
-
-
-    // In production, you would check for admin claims:
-
-    // const token = await user.getIdTokenResult();
-
-    // setIsAdmin(!!token.claims.admin);
-
-} else {
-
-    setIsAdmin(false);
-
-}
-
-});
-
-}, []);
-
-
-
-if (!isAdmin) {
-
-return (
-
-<div className="min-h-screen flex items-center justify-center bg-gray-100">
-
-    <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
-
-    <h2 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
-
-    <p className="text-gray-600 mb-4">
-
-        You are not authorized to access this application. Please contact your administrator
-
-        if you believe this is a mistake.
-
-    </p>
-
-    <button
-
-        onClick={() => auth.signOut()}
-
-        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
-
-    >
-
-        Sign Out
-
-    </button>
-
-    </div>
-
-</div>
-
-);
-
-}
-
-
-
-return <>{children}</>;
-
+  return <>{children}</>;
 }
