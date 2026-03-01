@@ -102,33 +102,28 @@ export default function BikeDetailPage() {
   };
 
   // Updated Cart Logic (Size mandatory)
-  const handleAddToCart = async () => {
-    if (!user) {
-      triggerToast("Please login to add to cart.");
-      return;
-    }
+    const handleAddToCart = () => {
     if (!selectedSize) {
-      triggerToast("Please select a frame size first.");
+      triggerToast("Technical Requirement: Select Frame Size.");
       return;
     }
 
-    setIsAdding(true);
-    try {
-      await addDoc(collection(db, 'carts'), {
-        userEmail: user.email,
-        bikeId: bike.id,
-        bikeName: bike.name,
-        bikeImage: bike.image,
-        bikePrice: bike.price,
-        size: selectedSize,
-        addedAt: new Date()
-      });
-      triggerToast(`${bike.name} added to cart.`);
-    } catch (error) {
-      triggerToast("Could not add to cart.");
-    } finally {
-      setIsAdding(false);
-    }
+    const cartItem = {
+      bikeId: bike.id,
+      bikeName: bike.name,
+      bikeImage: bike.image,
+      bikePrice: bike.price,
+      size: selectedSize,
+      brand: bike.brand
+    };
+
+    // Get existing cart or create new one
+    const existingCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+    const updatedCart = [...existingCart, cartItem];
+    
+    localStorage.setItem('guestCart', JSON.stringify(updatedCart));
+    
+    triggerToast(`${bike.name} added to manifest.`);
   };
 
   if (!bike) return <div className="p-20 text-center uppercase tracking-widest text-xs">Calibrating...</div>;

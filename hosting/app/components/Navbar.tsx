@@ -1,13 +1,32 @@
 'use client';
 
+import { useState, useEffect } from 'react'; // Added useState and useEffect
 import { useAuth } from '../context/AuthContext';
 import { getAuth, signOut } from 'firebase/auth';
+import { collection, query, where, onSnapshot, getFirestore } from 'firebase/firestore'; // Added Firestore imports
 import { app } from '../firebase';
 import Link from 'next/link';
 
 export default function Navbar() {
   const { user } = useAuth();
   const auth = getAuth(app);
+  const db = getFirestore(app);
+  
+  // State for the cart counter
+  const [cartCount, setCartCount] = useState(0);
+
+  // Listen for real-time cart updates
+  useEffect(() => {
+    if (user) {
+      const q = query(collection(db, 'carts'), where('userEmail', '==', user.email));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        setCartCount(snapshot.docs.length);
+      });
+      return () => unsubscribe();
+    } else {
+      setCartCount(0);
+    }
+  }, [user, db]);
 
   const handleLogout = async () => {
     try { await signOut(auth); } catch (error) { console.error(error); }
@@ -25,24 +44,33 @@ export default function Navbar() {
             </h1>
           </Link>
           
-          {/* Navigation Links - Updated with new Paths */}
+          {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8 text-[10px] font-bold tracking-[0.2em] text-gray-600">
             <Link href="/shop" className="hover:text-emerald-700 transition uppercase">The Fleet</Link>
-            
-            {/* Discipline Links using your new /category/ path */}
             <Link href="/shop/category/road" className="hover:text-emerald-700 transition uppercase">Road</Link>
             <Link href="/shop/category/mountain" className="hover:text-emerald-700 transition uppercase">MTB</Link>
             <Link href="/shop/category/gravel" className="hover:text-emerald-700 transition uppercase">Gravel</Link>
-            
             <Link href="/heritage" className="hover:text-emerald-700 transition uppercase">Heritage</Link>
           </div>
           
-          {/* Auth & Garage Section */}
-          <div className="flex items-center gap-8">
+          {/* Auth & Cart & Garage Section */}
+          <div className="flex items-center gap-6">
             {user ? (
               <>
-                {/* My Garage Link */}
-                <div className = "border-r-2 border-slate-250 pr-6 mr-2 py-1.5">
+                {/* CART ICON WITH BADGE */}
+                <Link href="/cart" className="relative p-2 text-slate-900 hover:text-emerald-600 transition group">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                  </svg>
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-emerald-600 text-white text-[7px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-in zoom-in">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Garage Link */}
+                <div className="border-l border-r border-slate-200 px-6 py-1.5">
                   <Link 
                     href="/garage" 
                     className="text-[10px] font-bold tracking-widest text-emerald-800 hover:text-emerald-600 transition flex items-center gap-2 group"
