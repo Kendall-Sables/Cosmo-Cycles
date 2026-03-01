@@ -18,30 +18,38 @@ export default function OrderHistory() {
   const { user } = useAuth();
   const db = getFirestore(app);
 
-  useEffect(() => {
-    async function fetchOrders() {
-      if (!user) return;
-      try {
-        const q = query(
-          collection(db, 'orders'),
-          where('userEmail', '==', user.email)
-          // Note: If this crashes, remove the orderBy line below until you click the Firebase Index link in your console
-          , orderBy('orderedAt', 'desc') 
-        );
-        const querySnapshot = await getDocs(q);
-        const ordersData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setOrders(ordersData);
-      } catch (error) {
-        console.error("Error fetching history:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchOrders();
-  }, [user, db]);
+    useEffect(() => {
+        async function fetchOrders() {
+          if (!user) return;
+          try {
+            // 1. Simplified query (No orderBy here yet)
+            const q = query(
+              collection(db, 'orders'),
+              where('userEmail', '==', user.email)
+            );
+            
+            const querySnapshot = await getDocs(q);
+            const ordersData = querySnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+
+            // 2. Sort manually in JS (Latest orders first)
+            ordersData.sort((a: any, b: any) => {
+            const timeA = a.orderedAt?.seconds || 0;
+            const timeB = b.orderedAt?.seconds || 0;
+            return timeB - timeA;
+            });
+
+            setOrders(ordersData);
+          } catch (error) {
+            console.error("Error fetching history:", error);
+          } finally {
+            setLoading(false);
+          }
+        }
+        fetchOrders();
+      }, [user, db]);
 
   if (loading) return <div className="pt-40 text-center font-black animate-pulse text-slate-300 uppercase tracking-widest">Accessing Archives...</div>;
 
