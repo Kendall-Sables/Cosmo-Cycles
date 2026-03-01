@@ -14,35 +14,34 @@ export default function Navbar() {
   
   const [cartCount, setCartCount] = useState(0);
 
-  useEffect(() => {
-    // 1. Logic for LOGGED IN users (Firestore)
+    useEffect(() => {
     let unsubscribe: () => void;
+
+    // Helper: Guest Calculation
+    const updateGuestCount = () => {
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      const total = guestCart.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0);
+      setCartCount(total);
+    };
+
     if (user) {
+      // LOGGED IN: Sum quantities from Firestore docs
       const q = query(collection(db, 'carts'), where('userEmail', '==', user.email));
       unsubscribe = onSnapshot(q, (snapshot) => {
-        setCartCount(snapshot.docs.length);
+        const total = snapshot.docs.reduce((acc, doc) => acc + (doc.data().quantity || 1), 0);
+        setCartCount(total);
       });
     } else {
-      // 2. Logic for GUEST users (LocalStorage)
-      const updateGuestCount = () => {
-        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-        setCartCount(guestCart.length);
-      };
-
-      updateGuestCount(); // Initial check
-
-      // Listen for the custom 'cartUpdated' event we trigger when adding items
+      // GUEST: Watch LocalStorage
+      updateGuestCount();
       window.addEventListener('cartUpdated', updateGuestCount);
-      window.addEventListener('storage', updateGuestCount); // Sync across tabs
-
-      return () => {
-        window.removeEventListener('cartUpdated', updateGuestCount);
-        window.removeEventListener('storage', updateGuestCount);
-      };
+      window.addEventListener('storage', updateGuestCount);
     }
 
     return () => {
       if (unsubscribe) unsubscribe();
+      window.removeEventListener('cartUpdated', updateGuestCount);
+      window.removeEventListener('storage', updateGuestCount);
     };
   }, [user, db]);
 

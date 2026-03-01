@@ -102,27 +102,42 @@ export default function BikeDetailPage() {
   };
 
   // Updated Cart Logic (Size mandatory)
-    const handleAddToCart = () => {
+      const handleAddToCart = async () => { // Added async
       if (!selectedSize) {
         triggerToast("Technical Requirement: Select Frame Size.");
         return;
       }
 
-      const cartItem = {
-        id: bike.id,      // match DB
-        name: bike.name,  // match DB
-        image: bike.image, // match DB
-        price: bike.price, // match DB
+      const itemData = {
+        id: bike.id,
+        name: bike.name,
+        image: bike.image,
+        price: bike.price,
         size: selectedSize,
         brand: bike.brand,
         quantity: 1
       };
 
-      const existingCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-      localStorage.setItem('guestCart', JSON.stringify([...existingCart, cartItem]));
-      window.dispatchEvent(new Event('cartUpdated')); 
-      triggerToast(`${bike.name} added to manifest.`);
-  };
+      if (user) {
+        // SIGNED IN: Save directly to Firestore
+        try {
+          await addDoc(collection(db, 'carts'), {
+            ...itemData,
+            userEmail: user.email,
+            createdAt: new Date()
+          });
+          triggerToast(`${bike.name} synced to account manifest.`);
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        // GUEST: Save to LocalStorage
+        const existingCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+        localStorage.setItem('guestCart', JSON.stringify([...existingCart, itemData]));
+        window.dispatchEvent(new Event('cartUpdated')); 
+        triggerToast(`${bike.name} added to guest manifest.`);
+      }
+    };
 
   if (!bike) return <div className="p-20 text-center uppercase tracking-widest text-xs">Calibrating...</div>;
 
