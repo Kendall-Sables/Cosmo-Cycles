@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { collection, addDoc, getFirestore } from 'firebase/firestore';
+import { 
+  collection, 
+  addDoc, 
+  getFirestore, 
+  query, 
+  where,
+  getDocs,
+  deleteDoc, 
+  doc        
+} from 'firebase/firestore';
 import { app } from '../firebase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
@@ -14,38 +24,58 @@ export default function CheckoutPage() {
   const [items, setItems] = useState<any[]>([]);
   const db = getFirestore(app);
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem('guestCart');
-    if (savedCart) {
-      setItems(JSON.parse(savedCart));
-    }
-  }, []);
+  // Inside CheckoutPage component
+    useEffect(() => {
+    const fetchCart = async () => {
+        if (user) {
+        // 1. Logged In: Fetch from Firestore
+        const q = query(collection(db, 'carts'), where('userEmail', '==', user.email));
+        const snap = await getDocs(q);
+        const dbItems = snap.docs.map(doc => ({ ...doc.data(), firebaseId: doc.id }));
+        setItems(dbItems);
+        } else {
+        // 2. Guest: Fetch from LocalStorage
+        const saved = localStorage.getItem('guestCart');
+        if (saved) setItems(JSON.parse(saved));
+        }
+    };
+    fetchCart();
+    }, [user, db]);
 
-  const total = items.reduce((acc, i) => acc + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+    const total = items.reduce((acc, i) => acc + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
 
-  const handleCompleteOrder = async () => {
-    if (!user || items.length === 0) return;
-    setIsProcessing(true);
+    const handleCompleteOrder = async () => {
+        if (!user || items.length === 0) return;
+        setIsProcessing(true);
 
-    try {
-      await addDoc(collection(db, 'orders'), {
-        userEmail: user.email,
-        items: items,
-        totalAmount: total,
-        paymentType: paymentType,
-        status: 'Complete', 
-        orderedAt: new Date()
-      });
+        try {
+        // 1. Create the Order
+        await addDoc(collection(db, 'orders'), {
+            userEmail: user.email,
+            items: items,
+            totalAmount: total,
+            paymentType: paymentType,
+            status: 'Pending', // Suggestion: Change 'Complete' to 'Pending' so Admin can manage it
+            orderedAt: new Date()
+        });
 
-      localStorage.removeItem('guestCart');
-      window.dispatchEvent(new Event('cartUpdated'));
-      setOrderComplete(true);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+        // 2. CLEAR FIRESTORE CART (So items don't stay in cart after purchase)
+        const q = query(collection(db, 'carts'), where('userEmail', '==', user.email));
+        const cartSnap = await getDocs(q);
+        const deletePromises = cartSnap.docs.map(document => deleteDoc(doc(db, 'carts', document.id)));
+        await Promise.all(deletePromises);
+
+        // 3. CLEAR LOCAL STORAGE
+        localStorage.removeItem('guestCart');
+        window.dispatchEvent(new Event('cartUpdated'));
+        setOrderComplete(true);
+        
+        } catch (e) {
+        console.error(e);
+        } finally {
+        setIsProcessing(false);
+        }
+    };
 
   // 1. MATCHING LOGIN GATE
   if (!user) {

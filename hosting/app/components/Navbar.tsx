@@ -14,10 +14,9 @@ export default function Navbar() {
   
   const [cartCount, setCartCount] = useState(0);
 
-    useEffect(() => {
+  useEffect(() => {
     let unsubscribe: () => void;
 
-    // Helper: Guest Calculation
     const updateGuestCount = () => {
       const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
       const total = guestCart.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0);
@@ -25,14 +24,12 @@ export default function Navbar() {
     };
 
     if (user) {
-      // LOGGED IN: Sum quantities from Firestore docs
       const q = query(collection(db, 'carts'), where('userEmail', '==', user.email));
       unsubscribe = onSnapshot(q, (snapshot) => {
         const total = snapshot.docs.reduce((acc, doc) => acc + (doc.data().quantity || 1), 0);
         setCartCount(total);
       });
     } else {
-      // GUEST: Watch LocalStorage
       updateGuestCount();
       window.addEventListener('cartUpdated', updateGuestCount);
       window.addEventListener('storage', updateGuestCount);
@@ -93,6 +90,14 @@ export default function Navbar() {
                 >
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
                   GARAGE
+                </Link>
+
+                {/* ADDED ORDERS LINK HERE */}
+                <Link 
+                  href="/orders" 
+                  className="text-[10px] font-black tracking-[0.2em] text-black hover:text-emerald-600 transition flex items-center gap-2 border-l border-slate-200 pl-4"
+                >
+                  ORDERS
                 </Link>
 
                 <div className="hidden lg:flex flex-col items-end border-l border-slate-100 pl-6">
