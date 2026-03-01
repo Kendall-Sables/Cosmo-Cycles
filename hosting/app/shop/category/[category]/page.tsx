@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { collection, query, where, getDocs, getFirestore } from 'firebase/firestore';
-import { app } from '../../firebase';
+import { app } from '../../../firebase';
 import Link from 'next/link';
 
 export default function CategoryPage() {
@@ -29,7 +29,7 @@ export default function CategoryPage() {
     if (category) fetchCategoryBikes();
   }, [category, db]);
 
-  if (loading) return <div className="p-20 text-center uppercase tracking-widest text-xs">Scanning {category} Horizon...</div>;
+  if (loading) return <div className="p-20 text-center uppercase tracking-widest text-xs font-bold">Scanning {category} Horizon...</div>;
 
   return (
     <div className="bg-white min-h-screen pt-32 px-10">
@@ -39,13 +39,23 @@ export default function CategoryPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
         {bikes.map((bike) => (
-          <Link href={`/shop/${bike.id}`} key={bike.id} className="group">
-            <div className="aspect-[4/5] bg-slate-100 mb-6 overflow-hidden">
-              <img src={bike.image} alt={bike.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          /* FIX 1: Point to the new /shop/id/[id] path */
+          <Link href={`/shop/id/${bike.id}`} key={bike.id} className="group">
+            
+            {/* FIX 2: Horizontal Aspect Ratio & contain image */}
+            <div className="aspect-video bg-slate-50 mb-6 overflow-hidden flex items-center justify-center p-4">
+              <img 
+                src={bike.image} 
+                alt={bike.name} 
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700" 
+              />
             </div>
-            <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-2">{bike.level}</p>
+
+            <p className="text-[10px] font-bold tracking-[0.2em] text-emerald-600 uppercase mb-2">
+               {bike.brand} // {bike.level}
+            </p>
             <h3 className="text-xl font-bold uppercase text-slate-900">{bike.name}</h3>
-            <p className="text-slate-500 font-medium">R {bike.price?.toLocaleString()}</p>
+            <p className="text-slate-500 font-medium mt-1">R {bike.price?.toLocaleString()}</p>
           </Link>
         ))}
       </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
-import { app } from '../../firebase';
+import { app } from '../../../firebase';
 
 export default function BikeDetailPage() {
   const { id } = useParams();
@@ -27,7 +27,13 @@ export default function BikeDetailPage() {
   return (
     <div className="bg-white min-h-screen pt-40 px-6 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-        <img src={bike.image} className="w-full aspect-square object-cover bg-slate-50" alt={bike.name} />
+        <div className="aspect-video lg:aspect-square bg-slate-50 flex items-center justify-center overflow-hidden p-8">
+          <img 
+            src={bike.image} 
+            className="w-full h-full object-contain" 
+            alt={bike.name} 
+          />
+        </div>
         
         <div>
           <p className="text-emerald-600 font-bold uppercase tracking-[0.3em] text-[10px] mb-4">{bike.brand} // {bike.level}</p>
