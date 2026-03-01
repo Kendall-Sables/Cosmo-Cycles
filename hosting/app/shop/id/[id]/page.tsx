@@ -80,6 +80,36 @@ export default function BikeDetailPage() {
     }
   };
 
+  // --- NEW: Add to Cart Logic ---
+  const handleAddToCart = async () => {
+    if (!user) {
+      alert("Please login to add machines to your cart.");
+      return;
+    }
+    if (!selectedSize) {
+      alert("Please select a frame size first.");
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      await addDoc(collection(db, 'carts'), {
+        userEmail: user.email,
+        bikeId: bike.id,
+        bikeName: bike.name,
+        bikeImage: bike.image,
+        bikePrice: bike.price,
+        size: selectedSize,
+        addedAt: new Date()
+      });
+      alert("Machine added to cart successfully.");
+    } catch (error) {
+      console.error("Cart Error:", error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   if (!bike) return <div className="p-20 text-center uppercase tracking-widest text-xs">Calibrating...</div>;
 
   return (
@@ -159,17 +189,28 @@ export default function BikeDetailPage() {
               </div>
             </div>
 
-            <button 
-              onClick={handleAddToGarage}
-              disabled={isAdding}
-              className={`w-full py-6 text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-300 shadow-xl ${
-                selectedSize 
-                ? 'bg-emerald-950 text-white hover:bg-black active:scale-[0.98]' 
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              {isAdding ? 'Securing Machine...' : selectedSize ? 'Add to Garage' : 'Select Size to Continue'}
-            </button>
+            {/* BUTTON GROUP */}
+            <div className="space-y-4">
+              <button 
+                onClick={handleAddToCart}
+                disabled={isAdding}
+                className={`w-full py-6 text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-300 shadow-xl ${
+                  selectedSize 
+                  ? 'bg-emerald-950 text-white hover:bg-black active:scale-[0.98]' 
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                }`}
+              >
+                {isAdding ? 'Processing...' : selectedSize ? 'Add to Cart' : 'Select Size to Continue'}
+              </button>
+
+              <button 
+                onClick={handleAddToGarage}
+                disabled={isAdding}
+                className="w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] border border-slate-200 text-slate-900 hover:bg-slate-50 hover:border-slate-400 transition-all"
+              >
+                Save to Garage
+              </button>
+            </div>
           </div>
         </div>
       </div>
