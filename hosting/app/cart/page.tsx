@@ -1,114 +1,108 @@
 'use client';
-
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
-  const { user } = useAuth();
-  const { push } = useRouter();
   const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { push } = useRouter();
 
-  // GUEST CART LOGIC: Read from LocalStorage if not logged in
   useEffect(() => {
-    const savedCart = localStorage.getItem('guestCart');
-    if (savedCart) {
-      setItems(JSON.parse(savedCart));
-    }
-    setLoading(false);
+    const saved = JSON.parse(localStorage.getItem('guestCart') || '[]');
+    setItems(saved);
   }, []);
 
-  const removeItem = (index: number) => {
-    const newItems = [...items];
-    newItems.splice(index, 1);
-    setItems(newItems);
-    localStorage.setItem('guestCart', JSON.stringify(newItems));
+  const syncCart = (updatedItems: any[]) => {
+    setItems(updatedItems);
+    localStorage.setItem('guestCart', JSON.stringify(updatedItems));
+    window.dispatchEvent(new Event('cartUpdated')); 
   };
 
-  const subtotal = items.reduce((acc, item) => acc + (item.bikePrice || 0), 0);
+  const removeItem = (idx: number) => {
+    const updated = items.filter((_, i) => i !== idx);
+    syncCart(updated);
+  };
 
-  if (loading) return <div className="p-20 text-[10px] font-black uppercase tracking-[0.5em]">Initializing...</div>;
+  const updateQty = (idx: number, delta: number) => {
+    const updated = items.map((item, i) => {
+      if (i !== idx) return item;
+      const newQty = Math.max(1, (item.quantity || 1) + delta);
+      return { ...item, quantity: newQty };
+    });
+    syncCart(updated);
+  };
+
+  // FIX 1: Robust calculation using 'price'
+  const total = items.reduce((acc, i) => acc + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
 
   return (
-    <div className="bg-white min-h-screen pt-32 px-10 pb-20 font-sans">
-      <div className="max-w-[1600px] mx-auto">
+    <div className="bg-white min-h-screen pt-32 pb-40 px-10 md:px-20">
+      <div className="max-w-7xl mx-auto">
         
-        {/* ULTRA-MINIMAL HEADER */}
-        <div className="flex justify-between items-baseline border-b-[1px] border-black pb-4 mb-12">
-          <h1 className="text-8xl font-black uppercase tracking-tighter leading-none">
-            Cart<span className="text-emerald-500 text-4xl">/</span>
+        <div className="border-b border-slate-100 pb-10 mb-16">
+          <h1 className="text-6xl font-black uppercase tracking-tighter text-slate-900">
+            Shopping Cart<span className="text-emerald-600">.</span>
           </h1>
-          <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400">
-            {items.length} units in manifest
-          </span>
         </div>
 
         {items.length === 0 ? (
-          <div className="py-40 border-t border-slate-100">
-            <p className="text-sm uppercase tracking-widest text-slate-400">Your manifest is currently void.</p>
-            <Link href="/shop" className="mt-8 inline-block text-[11px] font-black underline uppercase tracking-[0.2em]">Browse Fleet</Link>
+          <div className="py-40 text-center border border-slate-100 rounded-sm">
+            <p className="text-slate-400 uppercase tracking-widest text-xs mb-8">Your cart is currently empty.</p>
+            <Link href="/shop" className="bg-emerald-900 text-white px-10 py-4 text-[11px] font-bold uppercase tracking-widest">
+              Browse the Fleet
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-12 gap-16">
-            
-            {/* TABLE-STYLE LIST */}
-            <div className="col-span-8">
-              <div className="grid grid-cols-12 text-[10px] uppercase font-black tracking-widest text-slate-400 mb-6 border-b border-slate-100 pb-2">
-                <div className="col-span-6">Machine Details</div>
-                <div className="col-span-2 text-center">Size</div>
-                <div className="col-span-2 text-right">Price</div>
-                <div className="col-span-2 text-right">Action</div>
-              </div>
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-16">
 
+            <div className="lg:col-span-8">
               {items.map((item, idx) => (
-                <div key={idx} className="grid grid-cols-12 items-center py-10 border-b border-slate-100 group">
-                  <div className="col-span-6 flex gap-8 items-center">
-                    <div className="w-24 h-24 bg-slate-50 p-2 grayscale group-hover:grayscale-0 transition-all duration-700">
-                      <img src={item.bikeImage} alt="" className="w-full h-full object-contain" />
+                <div key={idx} className="grid grid-cols-12 items-center py-10 border-b border-slate-50 group">
+                  <div className="col-span-7 flex items-center gap-10">
+                    <div className="w-28 h-28 bg-slate-50 p-4 rounded-sm flex items-center justify-center">
+                      {/* FIX 2: Use item.image instead of bikeImage */}
+                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black uppercase tracking-tight">{item.bikeName}</h3>
-                      <p className="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-widest">{item.brand}</p>
+                      <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 leading-tight">
+                        {/* FIX 3: Use item.name instead of bikeName */}
+                        {item.name}
+                      </h3>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                        {item.brand} | Size: {item.size}
+                      </p>
+                      <button onClick={() => removeItem(idx)} className="text-[10px] text-red-600 mt-6 block uppercase font-bold">
+                        [ Remove ]
+                      </button>
                     </div>
                   </div>
-                  <div className="col-span-2 text-center text-xs font-black">{item.size}</div>
-                  <div className="col-span-2 text-right text-xs font-bold tracking-tighter">R {item.bikePrice?.toLocaleString()}</div>
+
+                  <div className="col-span-3 flex justify-center">
+                    <div className="flex items-center border border-slate-200">
+                      <button onClick={() => updateQty(idx, -1)} className="p-2">−</button>
+                      <span className="px-4 font-black">{item.quantity || 1}</span>
+                      <button onClick={() => updateQty(idx, 1)} className="p-2">+</button>
+                    </div>
+                  </div>
+
                   <div className="col-span-2 text-right">
-                    <button onClick={() => removeItem(idx)} className="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-black transition-colors">
-                      [ Remove ]
-                    </button>
+                    <p className="text-lg font-black text-slate-900">
+                      {/* FIX 4: Use item.price instead of bikePrice */}
+                      R{((Number(item.price) || 0) * (Number(item.quantity) || 1)).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* STARK SUMMARY PANEL */}
-            <div className="col-span-4 h-fit sticky top-40 border-[1px] border-black p-10">
-              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] mb-12">Summary</h4>
-              
-              <div className="space-y-6 mb-12">
-                <div className="flex justify-between items-end border-b border-slate-100 pb-4">
-                  <span className="text-[10px] font-bold uppercase text-slate-400">Subtotal</span>
-                  <span className="text-lg font-bold tracking-tighter">R {subtotal.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-end border-b border-slate-100 pb-4">
-                  <span className="text-[10px] font-bold uppercase text-slate-400">VAT (15%)</span>
-                  <span className="text-lg font-bold tracking-tighter">Included</span>
-                </div>
-                <div className="flex justify-between items-end pt-4">
-                  <span className="text-[11px] font-black uppercase tracking-widest">Grand Total</span>
-                  <span className="text-4xl font-black tracking-tighter leading-none">R {subtotal.toLocaleString()}</span>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => push('/checkout')}
-                className="w-full py-6 bg-black text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-emerald-600 transition-all duration-500"
-              >
-                Proceed to Checkout
-              </button>
+            <div className="lg:col-span-4 sticky top-32 h-fit">
+               <div className="border p-10">
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Total Amount</p>
+                  <p className="text-5xl font-black text-slate-900">R{total.toLocaleString()}</p>
+                  <button onClick={() => push('/checkout')} className="w-full mt-8 bg-emerald-950 text-white py-6 uppercase font-black tracking-widest">
+                    Proceed to Checkout
+                  </button>
+               </div>
             </div>
           </div>
         )}
