@@ -7,32 +7,60 @@ interface IntelligenceProps {
 
 export default function Intelligence({ orders, products }: IntelligenceProps) {
   
-  // --- 1. FINANCIAL REPORTING LOGIC ---
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-  
-  // Calculate COGS (Cost of Goods Sold) by matching order items to product costPrice
-  const totalCOGS = orders.reduce((sum, o) => {
-    const product = products.find(p => p.id === o.productId);
-    const cost = product?.costPrice || 0;
-    return sum + cost;
-  }, 0);
-  
-  const grossProfit = totalRevenue - totalCOGS;
-  const profitMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+    // --- 1. FINANCIAL REPORTING LOGIC ---
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+    const totalCOGS = orders.reduce((sum, o) => {
+        // 1. Identify if this is a multi-item order or a legacy single-item order
+        const items = Array.isArray(o.items)
+        ? o.items
+        : [{ 
+            productId: o.productId || o.id, 
+            productName: o.productName || o.name || o.title, 
+            quantity: o.quantity || 1 
+            }];
+
+        // 2. Calculate the cost for all items in THIS specific order
+        const orderCost = items.reduce((s: number, itm: any) => {
+        const prodId = String(itm.productId || '').toLowerCase().trim();
+        const prodName = String(itm.productName || itm.name || '').toLowerCase().trim();
+
+        // 3. Find the matching bike in your products fleet
+        const product = products.find(p => {
+            const pId = String(p.id || '').toLowerCase().trim();
+            const pName = String(p.name || '').toLowerCase().trim();
+            return (prodId !== '' && pId === prodId) || (prodName !== '' && pName === prodName);
+        });
+
+        const unitCost = Number(product?.costPrice || 0);
+        const qty = Number(itm.quantity || 1);
+        
+        return s + (unitCost * qty);
+        }, 0);
+
+        return sum + orderCost;
+    }, 0);
+
+    const grossProfit = totalRevenue - totalCOGS;
+    const profitMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
 
   // --- 2. PRODUCT REPORTING LOGIC (ENHANCED) ---
   const salesByCategory = orders.reduce((acc: any, o) => {
-    const product = products.find(p => p.id === o.productId);
-    // Use product category, or fallback to the category saved in the order
+    const product = products.find(p => 
+      String(p.id).toLowerCase() === String(o.productId).toLowerCase() ||
+      String(p.name).toLowerCase() === String(o.productName || o.name).toLowerCase()
+    );
     const cat = product?.category || o.category || 'Legacy/Test';
     acc[cat] = (acc[cat] || 0) + 1;
     return acc;
   }, {});
 
   const salesByProduct = orders.reduce((acc: any, o) => {
-    const product = products.find(p => p.id === o.productId);
-    // Use product name, or fallback to the productName saved in the order
-    const name = product?.name || o.productName || 'Manual Entry';
+    const product = products.find(p => 
+      String(p.id).toLowerCase() === String(o.productId).toLowerCase() ||
+      String(p.name).toLowerCase() === String(o.productName || o.name).toLowerCase()
+    );
+    const name = product?.name || o.productName || o.name || 'Manual Entry';
     acc[name] = (acc[name] || 0) + 1;
     return acc;
   }, {});

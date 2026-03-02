@@ -66,7 +66,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8 text-[10px] font-black tracking-[0.3em] text-slate-400">
             <Link href="/shop" className="hover:text-black transition uppercase">Fleet</Link>
             <Link href="/shop/category/road" className="hover:text-black transition uppercase">Road</Link>
-            <Link href="/shop/category/mountain" className="hover:text-black transition uppercase">MTB</Link>
+            <Link href="/shop/category/mountain" className="hover:text-black transition uppercase">Mountain</Link>
             <Link href="/shop/category/gravel" className="hover:text-black transition uppercase">Gravel</Link>
             <Link href="/heritage" className="hover:text-black transition uppercase">Heritage</Link>
           </div>

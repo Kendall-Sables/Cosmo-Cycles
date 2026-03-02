@@ -36,30 +36,45 @@ export default function Inventory({ products, setProducts }: InventoryProps) {
   };
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
+
+  // 1. ADD THIS CLEANER (Protects against "R", spaces, and commas)
+  const sanitizeNumber = (val: any) => {
+    if (!val) return 0;
+    const cleaned = typeof val === 'string' ? val.replace(/[^\d.]/g, '') : val;
+    return Number(cleaned) || 0;
+  };
+
+  // 2. UPDATE PROCESSED DATA (Uses the cleaner)
     const processedData = {
-      ...formData,
-      price: Number(formData.price),
-      costPrice: Number(formData.costPrice), // Ensure cost is saved as a number
-      sizes: typeof formData.sizes === 'string' ? formData.sizes.split(',').map(s => s.trim().toUpperCase()) : formData.sizes,
-      tags: typeof formData.tags === 'string' ? formData.tags.split(',').map(t => t.trim()) : formData.tags,
+        ...formData,
+        price: sanitizeNumber(formData.price),
+        costPrice: sanitizeNumber(formData.costPrice),
+        sizes: typeof formData.sizes === 'string' 
+        ? formData.sizes.split(',').map(s => s.trim().toUpperCase()) 
+        : formData.sizes,
+        tags: typeof formData.tags === 'string' 
+        ? formData.tags.split(',').map(t => t.trim()) 
+        : formData.tags,
     };
 
+    // 3. THE FIREBASE SYNC (Includes error logging)
     try {
-      if (editingId) {
+        if (editingId) {
         await updateDoc(doc(db, 'products', editingId), processedData);
         setProducts(products.map(p => p.id === editingId ? { id: editingId, ...processedData } : p));
-      } else {
+        } else {
         const docRef = await addDoc(collection(db, 'products'), processedData);
         setProducts([...products, { id: docRef.id, ...processedData }]);
-      }
-      setIsAdding(false);
-      setEditingId(null);
-      setFormData(initialFormState);
+        }
+        setIsAdding(false);
+        setEditingId(null);
+        setFormData(initialFormState);
     } catch (err) {
-      alert("Database synchronization failed.");
+        console.error("FIREBASE ERROR:", err); // Look here in F12 Console if it fails!
+        alert("Database synchronization failed.");
     }
-  };
+    };
 
   return (
     <div className="animate-in fade-in duration-500">
