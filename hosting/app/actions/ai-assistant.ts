@@ -8,32 +8,51 @@ export async function chatWithAero(prompt: string, productData: any[], imageData
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    // 1. Prepare the "Knowledge Base" for the AI
+    const slimInventory = productData.map(bike => ({
+      id: bike.id,
+      name: bike.name,
+      brand: bike.brand,
+      price: bike.price,
+      category: bike.category,
+      level: bike.level,
+      material: bike.material || 'Carbon Fiber'
+    }));
+
     const context = `
-      You are the Cosmo Cycles Aero-Assistant. You are a pro bike mechanic and expert.
-      Here is our current inventory in JSON format: ${JSON.stringify(productData)}
-      
-      Rules:
-      - If the user provides an image, identify the bike type/color/brand.
-      - Recommend the best 1-3 matches from our inventory based on the user's prompt or image.
-      - Explain WHY you chose them (e.g., "This fits your R50k budget and is great for climbing").
-      - Keep the tone technical, premium, and professional.
-    `;
+        You are Cosmo, the premium cycling concierge for Cosmo Cycles. 
+        
+        INVENTORY: ${JSON.stringify(slimInventory)}
+        
+        RESPONSE RULES:
+        - Use **Markdown** and **Bullet Points**.
+        - For EVERY bike, you MUST clearly state the **Type** (e.g., Road, Mountain, or Gravel).
+        - Include technical specs: **Price**, **Material**, and **Level**.
+        - Format every recommendation exactly like this:
+            * **[Bike Name]** ([Type])
+            - Why it matches: [Reason]
+            - Specs: **[Price]** | **[Material]** | **[Level]**
+            - [VIEW MACHINE DETAILS](/shop/id/[ID])
+        
+        TONE: Elite, helpful, and professional.
+        `;
 
     let result;
 
     if (imageData) {
-      // HANDLE IMAGE + TEXT
       const imagePart = {
         inlineData: {
-          data: imageData.split(',')[1], // Remove the base64 header
+          data: imageData.split(',')[1],
           mimeType: "image/jpeg",
         },
       };
-      result = await model.generateContent([context, prompt || "What bike is this and do we have similar ones?", imagePart]);
+      result = await model.generateContent([context, prompt || "Analyze this image and find matches.", imagePart]);
     } else {
-      // HANDLE TEXT ONLY
-      result = await model.generateContent([context, prompt]);
+      // If it's the first time opening, we use a specific greeting prompt
+      const finalPrompt = prompt === "INITIAL_GREETING" 
+        ? "Introduce yourself briefly as the Aero-Assistant and ask how you can help with the fleet." 
+        : prompt;
+
+      result = await model.generateContent([context, finalPrompt]);
     }
 
     return result.response.text();
