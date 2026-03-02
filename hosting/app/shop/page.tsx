@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
 import { app } from '../firebase';
 import Link from 'next/link';
+import AeroAssistant from '../components/AeroAssistant';
 
 export default function ShopPage() {
   const [allBikes, setAllBikes] = useState<any[]>([]);
@@ -165,6 +166,7 @@ export default function ShopPage() {
           </div>
         </main>
       </div>
+      <AeroAssistant products={allBikes} />
     </div>
   );
 }
