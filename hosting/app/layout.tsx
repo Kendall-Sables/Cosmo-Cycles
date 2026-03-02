@@ -7,8 +7,14 @@ import Footer from './components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Cosmo Cycles | Precision Engineering',
-  description: 'High-performance cycling for the modern athlete.',
+  title: 'Cosmo Cycles | Elite Performance Fleet',
+  description: 'Precision engineered bicycles for the modern cyclist. AI-powered matching and professional fleet management.',
+  // This section tells the browser to use your new Green C logo
+  icons: {
+    icon: '/favicon.png',      // Standard tab icon
+    shortcut: '/favicon.png',  // Shortcut icon
+    apple: '/favicon.png',    // Icon for mobile bookmarks
+  },
 };
 
 export default function RootLayout({
@@ -17,17 +23,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-white antialiased`}>
+    <html lang="en" className="scroll-smooth">
+      <body className={`${inter.className} bg-white antialiased text-slate-900`}>
         <AuthProvider>
-          {/* The Navbar lives here so it stays consistent on every page */}
+          {/* Consistent Navbar across all pages */}
           <Navbar />
           
-          <main>
+          {/* Main content area - min-h-screen ensures footer stays at bottom on short pages */}
+          <main className="min-h-screen">
             {children}
           </main>
 
-          {/* You can create a Footer.tsx in /components later and drop it here */}
+          {/* Consistent Footer across all pages */}
           <Footer />
         </AuthProvider>
       </body>
