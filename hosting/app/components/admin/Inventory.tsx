@@ -12,8 +12,9 @@ export default function Inventory({ products, setProducts }: InventoryProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
+  // Added costPrice to initial state
   const initialFormState = {
-    name: '', price: 0, category: 'road', level: 'beginner', brand: '', 
+    name: '', price: 0, costPrice: 0, category: 'road', level: 'beginner', brand: '', 
     material: '', weight: '', sizes: 'XS, S, M, L, XL', description: '', 
     longDescription: '', image: '', tags: ''
   };
@@ -26,6 +27,8 @@ export default function Inventory({ products, setProducts }: InventoryProps) {
     setIsAdding(true);
     setFormData({
       ...product,
+      // Ensure costPrice exists even for old records
+      costPrice: product.costPrice || 0,
       sizes: Array.isArray(product.sizes) ? product.sizes.join(', ') : product.sizes,
       tags: Array.isArray(product.tags) ? product.tags.join(', ') : product.tags,
     });
@@ -37,6 +40,7 @@ export default function Inventory({ products, setProducts }: InventoryProps) {
     const processedData = {
       ...formData,
       price: Number(formData.price),
+      costPrice: Number(formData.costPrice), // Ensure cost is saved as a number
       sizes: typeof formData.sizes === 'string' ? formData.sizes.split(',').map(s => s.trim().toUpperCase()) : formData.sizes,
       tags: typeof formData.tags === 'string' ? formData.tags.split(',').map(t => t.trim()) : formData.tags,
     };
@@ -74,12 +78,16 @@ export default function Inventory({ products, setProducts }: InventoryProps) {
         <form onSubmit={handleSave} className="bg-slate-50 p-10 mb-12 border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-top-4">
           
           {/* BASIC INFO */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <label className="text-[9px] font-black uppercase text-slate-400 block mb-1">Machine Name</label>
             <input required type="text" className="w-full p-4 border border-slate-200 outline-none focus:border-emerald-500" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
           </div>
           <div>
-            <label className="text-[9px] font-black uppercase text-slate-400 block mb-1">Price (ZAR)</label>
+            <label className="text-[9px] font-black uppercase text-emerald-600 block mb-1 underline">Cost Price (Internal)</label>
+            <input required type="number" className="w-full p-4 border border-emerald-100 bg-emerald-50/30 outline-none focus:border-emerald-500" value={formData.costPrice} onChange={e => setFormData({...formData, costPrice: Number(e.target.value)})} />
+          </div>
+          <div>
+            <label className="text-[9px] font-black uppercase text-slate-400 block mb-1">Selling Price (Retail)</label>
             <input required type="number" className="w-full p-4 border border-slate-200 outline-none focus:border-emerald-500" value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} />
           </div>
 
@@ -157,7 +165,10 @@ export default function Inventory({ products, setProducts }: InventoryProps) {
                 <h4 className="text-[11px] font-black uppercase text-slate-900 leading-none">{p.name}</h4>
                 <div className="flex gap-4 mt-2">
                   <p className="text-[9px] text-emerald-500 font-black uppercase tracking-tighter">{p.brand}</p>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">R {p.price?.toLocaleString()}</p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">R {p.price?.toLocaleString()}</p>
+                    <p className="text-[9px] text-slate-300 italic font-bold uppercase tracking-widest">Cost: R {p.costPrice || 0}</p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -6,77 +6,143 @@ interface IntelligenceProps {
 }
 
 export default function Intelligence({ orders, products }: IntelligenceProps) {
-  // Logic: Calculate Financial Metrics
+  
+  // --- 1. FINANCIAL REPORTING LOGIC ---
   const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-  const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
   
-  // Logic: Calculate Inventory Metrics
-  const totalStockValue = products.reduce((sum, p) => sum + (p.price || 0), 0);
+  // Calculate COGS (Cost of Goods Sold) by matching order items to product costPrice
+  const totalCOGS = orders.reduce((sum, o) => {
+    const product = products.find(p => p.id === o.productId);
+    const cost = product?.costPrice || 0;
+    return sum + cost;
+  }, 0);
   
-  // Logic: Category Breakdown
-  const categories = products.reduce((acc: any, p) => {
-    acc[p.category] = (acc[p.category] || 0) + 1;
+  const grossProfit = totalRevenue - totalCOGS;
+  const profitMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+
+  // --- 2. PRODUCT REPORTING LOGIC (ENHANCED) ---
+  const salesByCategory = orders.reduce((acc: any, o) => {
+    const product = products.find(p => p.id === o.productId);
+    // Use product category, or fallback to the category saved in the order
+    const cat = product?.category || o.category || 'Legacy/Test';
+    acc[cat] = (acc[cat] || 0) + 1;
     return acc;
   }, {});
 
-  return (
-    <div className="animate-in fade-in duration-700">
-      <h2 className="text-6xl font-black uppercase tracking-tighter text-slate-900 mb-12 leading-none">
-        Intelligence<span className="text-emerald-500">.</span>
-      </h2>
+  const salesByProduct = orders.reduce((acc: any, o) => {
+    const product = products.find(p => p.id === o.productId);
+    // Use product name, or fallback to the productName saved in the order
+    const name = product?.name || o.productName || 'Manual Entry';
+    acc[name] = (acc[name] || 0) + 1;
+    return acc;
+  }, {});
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div className="p-8 border border-slate-100 bg-white">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Gross Sales</p>
-          <p className="text-3xl font-black text-slate-900">R {totalRevenue.toLocaleString()}</p>
-        </div>
-        <div className="p-8 border border-slate-100 bg-white">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Avg. Ticket</p>
-          <p className="text-3xl font-black text-slate-900">R {Math.round(avgOrderValue).toLocaleString()}</p>
-        </div>
-        <div className="p-8 border border-slate-100 bg-white">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Fleet Worth</p>
-          <p className="text-3xl font-black text-slate-900">R {totalStockValue.toLocaleString()}</p>
-        </div>
-        <div className="p-8 border border-slate-100 bg-white">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Active Orders</p>
-          <p className="text-3xl font-black text-emerald-500">{orders.filter(o => o.status !== 'Complete').length}</p>
-        </div>
+  const bestSeller = Object.entries(salesByProduct).sort((a: any, b: any) => b[1] - a[1])[0] as [string, number] | undefined;
+
+  // --- 3. CUSTOMER REPORTING LOGIC ---
+  const customerStats = orders.reduce((acc: any, o) => {
+    const email = o.userEmail || 'Guest';
+    if (!acc[email]) acc[email] = { total: 0, count: 0 };
+    acc[email].total += (o.totalAmount || 0);
+    acc[email].count += 1;
+    return acc;
+  }, {});
+
+  const topCustomers = Object.entries(customerStats)
+    .sort((a: any, b: any) => b[1].total - a[1].total)
+    .slice(0, 3);
+
+  return (
+    <div className="space-y-16 animate-in fade-in duration-1000">
+      
+      {/* HEADER */}
+      <div className="border-b border-slate-100 pb-8">
+        <h2 className="text-5xl font-black uppercase tracking-tighter text-slate-900">
+          Strategic<br/>Intelligence<span className="text-emerald-500">.</span>
+        </h2>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-4">Automated Analytical Manifest</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Category Share */}
-        <div className="p-10 bg-slate-900 text-white rounded-sm">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-emerald-400">Inventory Distribution</h3>
-          <div className="space-y-6">
-            {Object.entries(categories).map(([cat, count]: [string, any]) => {
-              const percentage = (count / products.length) * 100;
-              return (
-                <div key={cat}>
-                  <div className="flex justify-between text-[10px] font-black uppercase mb-2">
-                    <span>{cat}</span>
-                    <span>{count} Units</span>
-                  </div>
-                  <div className="w-full bg-slate-800 h-1">
-                    <div 
-                      className="bg-emerald-500 h-1 transition-all duration-1000" 
-                      style={{ width: `${percentage}%` }}
-                    ></div>
-                  </div>
+      {/* 1. FINANCIAL REPORT */}
+      <section>
+        <div className="flex items-center gap-4 mb-8">
+          <span className="text-[10px] font-black text-white bg-slate-900 px-3 py-1">01</span>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900">Financial Performance</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-1 bg-slate-100 border border-slate-100">
+          <div className="bg-white p-10">
+            <p className="text-[9px] font-black text-slate-400 uppercase mb-2">Total Revenue</p>
+            <p className="text-3xl font-black text-slate-900">R {totalRevenue.toLocaleString()}</p>
+          </div>
+          <div className="bg-white p-10">
+            <p className="text-[9px] font-black text-slate-400 uppercase mb-2">Cost of Sales</p>
+            <p className="text-3xl font-black text-slate-900">R {totalCOGS.toLocaleString()}</p>
+          </div>
+          <div className="bg-white p-10">
+            <p className="text-[9px] font-black text-emerald-500 uppercase mb-2">Net Profit</p>
+            <p className="text-3xl font-black text-emerald-600">R {grossProfit.toLocaleString()}</p>
+          </div>
+          <div className="bg-slate-900 p-10">
+            <p className="text-[9px] font-black text-emerald-400 uppercase mb-2">Margin</p>
+            <p className="text-3xl font-black text-white">{profitMargin.toFixed(1)}%</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. PRODUCT REPORT */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div>
+          <div className="flex items-center gap-4 mb-8">
+            <span className="text-[10px] font-black text-white bg-slate-900 px-3 py-1">02</span>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900">Product Analysis</h3>
+          </div>
+          <div className="border border-slate-100 p-8 space-y-6">
+            <div>
+              <p className="text-[9px] font-black text-slate-400 uppercase mb-4">Top Performing Machine</p>
+              {bestSeller ? (
+                <div className="flex justify-between items-end">
+                  <p className="text-xl font-black uppercase text-slate-900">{bestSeller[0]}</p>
+                  <p className="text-[10px] font-black text-emerald-500">
+                    {bestSeller[1]} {bestSeller[1] === 1 ? 'UNIT' : 'UNITS'} SOLD
+                  </p>
                 </div>
-              );
-            })}
+              ) : <p className="text-slate-300 italic">No sales data recorded.</p>}
+            </div>
+            <div className="pt-6 border-t border-slate-50">
+              <p className="text-[9px] font-black text-slate-400 uppercase mb-4">Category Volume</p>
+              {Object.entries(salesByCategory).map(([cat, count]: any) => (
+                <div key={cat} className="flex justify-between py-2 border-b border-slate-50">
+                  <span className="text-[10px] font-bold uppercase text-slate-600">{cat}</span>
+                  <span className="text-[10px] font-black text-slate-900">{count}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Growth Insights */}
-        <div className="p-10 border border-slate-100 flex flex-col justify-center">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 text-slate-400">Growth Protocol</h3>
-          <p className="text-sm font-bold text-slate-600 leading-relaxed italic">
-            "Based on the current manifest of {orders.length} transactions, the average machine is moving at R {Math.round(avgOrderValue).toLocaleString()}. Recommendation: Expand {Object.keys(categories)[0]} inventory to capture higher margin."
-          </p>
+        {/* 3. CUSTOMER REPORT */}
+        <div>
+          <div className="flex items-center gap-4 mb-8">
+            <span className="text-[10px] font-black text-white bg-slate-900 px-3 py-1">03</span>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900">Customer Intelligence</h3>
+          </div>
+          <div className="bg-slate-50 p-8">
+            <p className="text-[9px] font-black text-slate-400 uppercase mb-6">High-Value Pilots</p>
+            <div className="space-y-4">
+              {topCustomers.length > 0 ? topCustomers.map(([email, stats]: any) => (
+                <div key={email} className="bg-white p-4 border border-slate-200 flex justify-between items-center">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-900 uppercase truncate w-40">{email}</p>
+                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{stats.count} Orders</p>
+                  </div>
+                  <p className="text-xs font-black text-emerald-600">R {stats.total.toLocaleString()}</p>
+                </div>
+              )) : <p className="text-slate-300 italic">Awaiting customer acquisition...</p>}
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
     </div>
   );
 }

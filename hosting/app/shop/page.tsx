@@ -97,6 +97,7 @@ export default function ShopPage() {
                 <option value="Giant">Giant</option>
                 <option value="Cervélo">Cervélo</option>
                 <option value="Santa Cruz">Santa Cruz</option>
+                <option value="Cannondale">Cannondale</option>
               </select>
             </div>
 
@@ -105,9 +106,9 @@ export default function ShopPage() {
               <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Experience</label>
               <select onChange={(e) => setLevelFilter(e.target.value)} className="w-full text-xs font-bold uppercase border-slate-200 py-3 px-2 focus:ring-1 focus:ring-emerald-500 outline-none">
                 <option value="all">All Levels</option>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
               </select>
             </div>
           </div>
