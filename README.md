@@ -1,42 +1,37 @@
-# Firebase Next.js Template
+# Cosmo Cycles | Elite Performance Fleet
 
-A ready-to-use template for building Next.js applications with Firebase Authentication and Hosting.
+**Course:** INF4027W Mini-Project  
+**Live Site:** https://cosmo-cycles.vercel.app/
 
-## Features
+---
 
-- Next.js 15+ with App Router
-- Firebase Authentication with Google Sign-in
-- Firebase Hosting configuration
-- Admin-protected routes (configurable)
-- TypeScript support
-- Tailwind CSS for styling
+## 🚀 Project Overview
 
-## Getting Started
+Cosmo Cycles is a premium cycling interface designed for high-performance athletes. This project serves as a full-stack demonstration of modern web technologies, integrating real-time database management with generative AI to assist users in fleet selection.
 
-Follow the steps in `setup_checklist.md` to get your project up and running.
+## 🛠 Tech Stack
 
-## Project Structure
+- **Frontend:** Next.js 14 (App Router) & Tailwind CSS
+- **Backend/Database:** Firebase Firestore (Online Database)
+- **Authentication:** Firebase Auth (Secure User Management)
+- **AI Integration:** Google Gemini Pro (Aero-Assistant)
+- **Deployment:** Vercel (Cloud Hosting)
 
-- `/hosting` - Next.js application
-  - `/app` - App components, context, and utilities
-  - `.env.local.sample` - Template for Firebase configuration
+## 🏆 Key Features (Marking Criteria)
 
-## Development Commands
+- **Sophisticated UI:** Custom-built "Dark Emerald" aesthetic with a responsive Heritage Timeline and Brand Belt.
+- **Online Database (4 Marks):** Real-time bike fleet data fetched dynamically from Firestore.
+- **Authentication (4 Marks):** Secure Sign-up/Login flow protecting user profiles.
+- **AI Integration:** Custom "Aero-Assistant" chatbot that utilizes the Gemini API to provide technical cycling advice.
+- **Precision Engineering:** Clean, modular code structure following Next.js best practices.
 
-- Local development: `cd hosting && npm run dev`
-- Local Firebase server: `firebase serve --only hosting`
-- Build for production: `cd hosting && npm run build`
-- Deploy to preview: `firebase hosting:channel:deploy preview-1`
-- Deploy to production: `firebase deploy --only hosting`
+## 🔧 Local Development
 
-## Authentication
+1. **Clone the repo:** `git clone [YOUR_REPO_URL]`
+2. **Install dependencies:** `npm install`
+3. **Environment Variables:** Create a `.env.local` file with your Firebase and Gemini API keys.
+4. **Run:** `npm run dev`
 
-This template uses Firebase Authentication with Google Sign-in. The admin protection is bypassed in development mode but can be enabled for production.
+---
 
-## Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Firebase Documentation](https://firebase.google.com/docs)
-- [Firebase Hosting Guide](https://firebase.google.com/docs/hosting/test-preview-deploy)
-
-
+_Created by SBLKEN002 as part of the INF4027W Honours curriculum._
