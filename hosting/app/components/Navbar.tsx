@@ -14,6 +14,10 @@ export default function Navbar() {
   
   const [cartCount, setCartCount] = useState(0);
 
+  // Define Admin Access
+  const ADMIN_EMAIL = "admin@cosmo.co.za"; 
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
   useEffect(() => {
     let unsubscribe: () => void;
 
@@ -68,7 +72,7 @@ export default function Navbar() {
           </div>
           
           {/* Action Zone */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6 lg:gap-8">
             
             {/* CART - Always Visible */}
             <Link href="/cart" className="relative p-2 text-black hover:text-emerald-600 transition group">
@@ -84,6 +88,16 @@ export default function Navbar() {
 
             {user ? (
               <>
+                {/* --- ADMIN TERMINAL LINK (Only visible to you) --- */}
+                {isAdmin && (
+                  <Link 
+                    href="/dashboard" 
+                    className="text-[9px] font-black tracking-[0.2em] bg-emerald-500 text-white px-3 py-1.5 hover:bg-black transition-all border border-emerald-500"
+                  >
+                    TERMINAL
+                  </Link>
+                )}
+
                 <Link 
                   href="/garage" 
                   className="text-[10px] font-black tracking-[0.2em] text-black hover:text-emerald-600 transition flex items-center gap-2"
@@ -92,7 +106,6 @@ export default function Navbar() {
                   GARAGE
                 </Link>
 
-                {/* ADDED ORDERS LINK HERE */}
                 <Link 
                   href="/orders" 
                   className="text-[10px] font-black tracking-[0.2em] text-black hover:text-emerald-600 transition flex items-center gap-2 border-l border-slate-200 pl-4"

@@ -37,6 +37,7 @@ export default function Orders({ orders, setOrders }: { orders: any[], setOrders
           <option value="Pending">Pending</option>
           <option value="Shipped">Shipped</option>
           <option value="Complete">Complete</option>
+          <option value="Cancelled">Cancelled</option>
         </select>
       </div>
 
