@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { ArrowRight, Zap, Award, Target } from 'lucide-react';
 
 export default function HeritagePage() {
   const milestones = [
@@ -11,65 +12,123 @@ export default function HeritagePage() {
   ];
 
   return (
-    <div className="bg-white min-h-screen pt-32 pb-40 px-10 md:px-20">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-white min-h-screen">
+      
+      {/* 1. CINEMATIC HERO */}
+      <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="https://res.cloudinary.com/dzbriyw1o/image/upload/v1772428005/heritage-banner-background_eavelj.jpg" 
+            className="w-full h-full object-cover grayscale brightness-[0.3]"
+            alt="Heritage Road Cycling"
+          />
+        </div>
         
-        {/* HERO SECTION */}
-        <div className="mb-32">
-          <p className="text-emerald-600 font-black uppercase tracking-[0.5em] text-[10px] mb-4">Our Legacy // Est. 2002</p>
-          <h1 className="text-8xl font-black uppercase tracking-tighter text-slate-900 leading-[0.8] mb-8">
-            Precision<br />Inheritance<span className="text-emerald-600">.</span>
+        <div className="relative z-10 text-center px-6">
+          <p className="text-emerald-400 font-black uppercase tracking-[0.6em] text-[10px] mb-6">Established MMII // Cape Town</p>
+          <h1 className="text-7xl md:text-[10rem] font-black text-white uppercase tracking-tighter leading-[0.8] mb-8">
+            BORN IN <br /> <span className="text-transparent" style={{ WebkitTextStroke: '2px white' }}>THE WIND</span>
           </h1>
-          <p className="text-slate-500 text-lg max-w-2xl leading-relaxed italic">
-            "We don't build bicycles. We engineer high-velocity kinetic sculptures for those who refuse to stand still."
-          </p>
+          <div className="w-24 h-1 bg-emerald-500 mx-auto"></div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-6 py-32">
+        
+        {/* 2. PHILOSOPHY GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-24 items-center mb-48">
+          <div className="relative">
+            <img 
+              src="https://res.cloudinary.com/dzbriyw1o/image/upload/v1772428107/heritage-picture_nhbuvq.webp" 
+              className="rounded-3xl shadow-2xl relative z-10"
+              alt="Carbon Detail"
+            />
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-emerald-100/50 rounded-full -z-0"></div>
+          </div>
+          <div>
+            <h2 className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-6">Our Manifesto</h2>
+            <h3 className="text-5xl font-black text-slate-900 uppercase tracking-tighter mb-8 leading-none">
+              Engineering <br /> Kinetic Art.
+            </h3>
+            <p className="text-slate-500 text-lg leading-relaxed mb-10 italic border-l-4 border-emerald-500 pl-6">
+              "We don't build bicycles. We engineer high-velocity kinetic sculptures for those who refuse to stand still."
+            </p>
+            <div className="grid grid-cols-1 gap-8">
+              {[
+                { icon: <Zap size={18}/>, title: 'AERODYNAMICS', text: 'Tested against crosswinds for peak stability.' },
+                { icon: <Award size={18}/>, title: 'INTEGRITY', text: 'Hand-placed high-modulus carbon layers.' },
+                { icon: <Target size={18}/>, title: 'PURE INTENT', text: 'Zero gimmicks. Only pure speed.' },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4 items-start">
+                  <div className="text-emerald-600 mt-1">{item.icon}</div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-widest text-slate-900">{item.title}</h4>
+                    <p className="text-[11px] text-slate-500 uppercase font-bold mt-1 tracking-tight">{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* NEW SECTION: TECHNICAL PHILOSOPHY */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-40">
-            <div className="space-y-4">
-                <h4 className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">[ 01. Aerodynamics ]</h4>
-                <p className="text-xs font-bold text-slate-900 uppercase leading-relaxed">Every tube profile is tested against crosswinds to ensure stability at peak velocity.</p>
-            </div>
-            <div className="space-y-4">
-                <h4 className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">[ 02. Integrity ]</h4>
-                <p className="text-xs font-bold text-slate-900 uppercase leading-relaxed">High-modulus carbon layers are hand-placed to balance vertical compliance with lateral stiffness.</p>
-            </div>
-            <div className="space-y-4">
-                <h4 className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">[ 03. Pure Intent ]</h4>
-                <p className="text-xs font-bold text-slate-900 uppercase leading-relaxed">No unnecessary features. No gimmicks. Only what makes the machine faster.</p>
-            </div>
+        {/* 3. ZIG-ZAG VERTICAL TIMELINE - NOW IN EMERALD */}
+        <div className="mb-48">
+          <div className="text-center mb-32">
+            <h2 className="text-xs font-black text-emerald-600 uppercase tracking-[0.4em] mb-4">Evolutionary Path</h2>
+            <h3 className="text-6xl font-black text-slate-900 uppercase tracking-tighter">The Milestones</h3>
+          </div>
+
+          <div className="relative space-y-32">
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-200 hidden md:block"></div>
+
+            {milestones.map((m, idx) => (
+              <div 
+                key={idx} 
+                className={`flex flex-col md:flex-row items-center gap-8 md:gap-0 ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}
+              >
+                {/* Content Side */}
+                <div className={`flex-1 w-full text-center ${idx % 2 === 0 ? 'md:text-right md:pr-20' : 'md:text-left md:pl-20'}`}>
+                  {/* Updated Year Color to Emerald */}
+                  <span className="text-7xl md:text-8xl font-black text-emerald-500/50 block mb-2 leading-none">
+                    {m.year}
+                  </span>
+                  <h4 className="text-2xl md:text-3xl font-black uppercase text-slate-900 mb-4 tracking-tighter">
+                    {m.title}
+                  </h4>
+                  <p className={`text-sm text-slate-500 leading-relaxed font-medium max-w-sm ${idx % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'}`}>
+                    {m.desc}
+                  </p>
+                </div>
+
+                {/* Center Node */}
+                <div className="relative flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 z-10 border-4 border-white shadow-[0_0_15px_rgba(16,185,129,0.3)]"></div>
+                </div>
+
+                <div className="flex-1 hidden md:block"></div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* TIMELINE GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 mb-40">
-          {milestones.map((m, idx) => (
-            <div key={idx} className="border-t border-slate-100 pt-10 group">
-              <span className="text-4xl font-black text-slate-200 group-hover:text-emerald-500 transition-colors duration-500">
-                {m.year}
-              </span>
-              <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 mt-4 mb-4">
-                {m.title}
-              </h3>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 leading-loose">
-                {m.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* UPDATED CLOSING STATMENT: Matching your Emerald Green */}
-        <div className="bg-emerald-950 p-20 text-center relative overflow-hidden rounded-sm">
+        {/* 4. PREMIUM CTA SECTION */}
+        <div className="bg-emerald-950 rounded-[3rem] p-16 md:p-32 text-center relative overflow-hidden shadow-2xl">
           <div className="relative z-10">
-            <h2 className="text-white text-4xl font-black uppercase tracking-tighter mb-8">Ready to start your chapter?</h2>
-            <Link href="/shop" className="bg-white text-emerald-950 px-12 py-5 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-emerald-500 hover:text-white transition-all inline-block">
-              Acquire a Cosmo Machine
+            <h2 className="text-white text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8 leading-[0.9]">
+              Own the <br /> <span className="text-emerald-400">Next Chapter.</span>
+            </h2>
+            <p className="text-emerald-100/60 text-[10px] uppercase font-bold tracking-[0.4em] mb-12 max-w-xl mx-auto">
+              Our legacy is built one ride at a time.
+            </p>
+            <Link 
+              href="/shop" 
+              className="bg-white text-emerald-950 px-14 py-6 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-emerald-400 hover:text-white transition-all inline-flex items-center gap-3 group"
+            >
+              Acquire a Machine <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          
-          {/* Subtle Background Watermark */}
-          <div className="absolute top-0 right-0 opacity-10 text-[250px] font-black text-white leading-none translate-x-1/4 -translate-y-1/4 pointer-events-none">
-            C
+          <div className="absolute -bottom-20 -right-20 opacity-5 text-[300px] font-black text-white leading-none pointer-events-none">
+            26
           </div>
         </div>
 
