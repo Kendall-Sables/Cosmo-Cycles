@@ -45,27 +45,55 @@ export default function Intelligence({ orders, products }: IntelligenceProps) {
     const profitMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
 
   // --- 2. PRODUCT REPORTING LOGIC (ENHANCED) ---
+  // flatten items and count occurrences per category/product
   const salesByCategory = orders.reduce((acc: any, o) => {
-    const product = products.find(p => 
-      String(p.id).toLowerCase() === String(o.productId).toLowerCase() ||
-      String(p.name).toLowerCase() === String(o.productName || o.name).toLowerCase()
-    );
-    const cat = product?.category || o.category || 'Legacy/Test';
-    acc[cat] = (acc[cat] || 0) + 1;
+    const items = Array.isArray(o.items)
+      ? o.items
+      : [{ productId: o.productId || o.id, productName: o.productName || o.name, quantity: o.quantity || 1 }];
+
+    items.forEach((itm: any) => {
+      const prodId = String(itm.productId || '').toLowerCase().trim();
+      const prodName = String(itm.productName || '').toLowerCase().trim();
+
+      const product = products.find(p => {
+        const pId = String(p.id || '').toLowerCase().trim();
+        const pName = String(p.name || '').toLowerCase().trim();
+        return (prodId !== '' && pId === prodId) || (prodName !== '' && pName === prodName);
+      });
+
+      const cat = product?.category || itm.category || o.category || 'Legacy/Test';
+      const qty = Number(itm.quantity || 1);
+      acc[cat] = (acc[cat] || 0) + qty;
+    });
+
     return acc;
   }, {});
 
   const salesByProduct = orders.reduce((acc: any, o) => {
-    const product = products.find(p => 
-      String(p.id).toLowerCase() === String(o.productId).toLowerCase() ||
-      String(p.name).toLowerCase() === String(o.productName || o.name).toLowerCase()
-    );
-    const name = product?.name || o.productName || o.name || 'Manual Entry';
-    acc[name] = (acc[name] || 0) + 1;
+    const items = Array.isArray(o.items)
+      ? o.items
+      : [{ productId: o.productId || o.id, productName: o.productName || o.name, quantity: o.quantity || 1 }];
+
+    items.forEach((itm: any) => {
+      const prodId = String(itm.productId || '').toLowerCase().trim();
+      const prodName = String(itm.productName || '').toLowerCase().trim();
+
+      const product = products.find(p => {
+        const pId = String(p.id || '').toLowerCase().trim();
+        const pName = String(p.name || '').toLowerCase().trim();
+        return (prodId !== '' && pId === prodId) || (prodName !== '' && pName === prodName);
+      });
+
+      const name = product?.name || itm.productName || itm.name || 'Manual Entry';
+      const qty = Number(itm.quantity || 1);
+      acc[name] = (acc[name] || 0) + qty;
+    });
+
     return acc;
   }, {});
 
   const bestSeller = Object.entries(salesByProduct).sort((a: any, b: any) => b[1] - a[1])[0] as [string, number] | undefined;
+  const topCategory = Object.entries(salesByCategory).sort((a: any, b: any) => b[1] - a[1])[0] as [string, number] | undefined;
 
   // --- 3. CUSTOMER REPORTING LOGIC ---
   const customerStats = orders.reduce((acc: any, o) => {
@@ -137,13 +165,17 @@ export default function Intelligence({ orders, products }: IntelligenceProps) {
               ) : <p className="text-slate-300 italic">No sales data recorded.</p>}
             </div>
             <div className="pt-6 border-t border-slate-50">
-              <p className="text-[9px] font-black text-slate-400 uppercase mb-4">Category Volume</p>
-              {Object.entries(salesByCategory).map(([cat, count]: any) => (
-                <div key={cat} className="flex justify-between py-2 border-b border-slate-50">
-                  <span className="text-[10px] font-bold uppercase text-slate-600">{cat}</span>
-                  <span className="text-[10px] font-black text-slate-900">{count}</span>
+              <p className="text-[9px] font-black text-slate-400 uppercase mb-4">Top Category</p>
+              {topCategory ? (
+                <div className="flex justify-between items-end">
+                  <p className="text-xl font-black uppercase text-slate-900">{topCategory[0]}</p>
+                  <p className="text-[10px] font-black text-emerald-500">
+                    {topCategory[1]} {topCategory[1] === 1 ? 'UNIT' : 'UNITS'} SOLD
+                  </p>
                 </div>
-              ))}
+              ) : (
+                <p className="text-slate-300 italic">No category data recorded.</p>
+              )}
             </div>
           </div>
         </div>

@@ -109,10 +109,13 @@ export default function BikeDetailPage() {
       }
 
       const itemData = {
+        productId: bike.id,
+        productName: bike.name,
         id: bike.id,
         name: bike.name,
         image: bike.image,
         price: bike.price,
+        category: bike.category,
         size: selectedSize,
         brand: bike.brand,
         quantity: 1
