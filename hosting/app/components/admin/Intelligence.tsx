@@ -93,7 +93,22 @@ export default function Intelligence({ orders, products }: IntelligenceProps) {
   }, {});
 
   const bestSeller = Object.entries(salesByProduct).sort((a: any, b: any) => b[1] - a[1])[0] as [string, number] | undefined;
-  const topCategory = Object.entries(salesByCategory).sort((a: any, b: any) => b[1] - a[1])[0] as [string, number] | undefined;
+  
+  const salesByBrand = orders.reduce((acc: any, o) => {
+    const items = Array.isArray(o.items)
+      ? o.items
+      : [{ productId: o.productId || o.id, productName: o.productName || o.name, quantity: o.quantity || 1 }];
+
+    items.forEach((itm: any) => {
+      const qty = Number(itm.quantity || 1);
+      const brand = itm.brand || 'Unbranded';
+      acc[brand] = (acc[brand] || 0) + qty;
+    });
+
+    return acc;
+  }, {});
+  
+  const topBrand = Object.entries(salesByBrand).sort((a: any, b: any) => b[1] - a[1])[0] as [string, number] | undefined;
 
   // --- 3. CUSTOMER REPORTING LOGIC ---
   const customerStats = orders.reduce((acc: any, o) => {
@@ -165,16 +180,16 @@ export default function Intelligence({ orders, products }: IntelligenceProps) {
               ) : <p className="text-slate-300 italic">No sales data recorded.</p>}
             </div>
             <div className="pt-6 border-t border-slate-50">
-              <p className="text-[9px] font-black text-slate-400 uppercase mb-4">Top Category</p>
-              {topCategory ? (
+              <p className="text-[9px] font-black text-slate-400 uppercase mb-4">Top Brand</p>
+              {topBrand ? (
                 <div className="flex justify-between items-end">
-                  <p className="text-xl font-black uppercase text-slate-900">{topCategory[0]}</p>
+                  <p className="text-xl font-black uppercase text-slate-900">{topBrand[0]}</p>
                   <p className="text-[10px] font-black text-emerald-500">
-                    {topCategory[1]} {topCategory[1] === 1 ? 'UNIT' : 'UNITS'} SOLD
+                    {topBrand[1]} {topBrand[1] === 1 ? 'UNIT' : 'UNITS'} SOLD
                   </p>
                 </div>
               ) : (
-                <p className="text-slate-300 italic">No category data recorded.</p>
+                <p className="text-slate-300 italic">No brand data recorded.</p>
               )}
             </div>
           </div>
